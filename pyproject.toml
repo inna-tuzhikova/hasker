@@ -9,11 +9,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 django = "^4.2.6"
-
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.1.0"
 isort = "^5.12.0"
+
+[tool.poetry.group.prod.dependencies]
+uwsgi = "^2.0.23"
 
 [build-system]
 requires = ["poetry-core"]
