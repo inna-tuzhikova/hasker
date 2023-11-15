@@ -2,8 +2,8 @@ from django.db import models, IntegrityError
 
 
 class User(models.Model):
-    login = models.CharField(max_length=30)
-    email = models.EmailField()
+    login = models.CharField(max_length=30, unique=True)
+    email = models.EmailField(unique=True)
     password = models.CharField(max_length=30)
     registration_datetime = models.DateTimeField()
     avatar = models.CharField(max_length=2)
@@ -21,20 +21,29 @@ class Tag(models.Model):
 
 class QuestionManager(models.Manager):
     def n_trending(self, top_n: int):
-        return self.orderby('-rating')[:top_n]
+        return self.order_by('-rating')[:top_n]
 
+    # TODO: mb, rm
     def trending(self):
-        return self.orderby('-rating')
+        return self.order_by('-rating')
 
     def recent(self):
-        return self.orderby('-created')
+        return self.order_by('-created')
 
     def by_tag(self, query: str):
         return Tag.objects.get(text=query).questions
 
+    def by_id(self, pk: int):
+        return (
+            self
+            .select_related('author')
+            .prefetch_related('answers', 'answers__author', 'tags')
+            .get(pk=pk)
+        )
+
 
 class Question(models.Model):
-    caption = models.CharField(max_length=30)
+    caption = models.CharField(max_length=100)
     text = models.CharField(max_length=1000)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField()
@@ -48,7 +57,7 @@ class Question(models.Model):
 
     def upvote(self, user):
         try:
-            self.votes.create(user=user, post=self, up=True)
+            self.votes.create(user=user, question=self, up=True)
             self.rating += 1
             self.save()
         except IntegrityError:
@@ -61,9 +70,9 @@ class Question(models.Model):
                 return 'already_up_voted'
         return 'ok'
 
-    def down_vote(self, user):
+    def downvote(self, user):
         try:
-            self.votes.create(user=user, post=self, up=False)
+            self.votes.create(user=user, question=self, up=False)
             self.rating -= 1
             self.save()
         except IntegrityError:
@@ -89,12 +98,15 @@ class Answer(models.Model):
     rating = models.IntegerField(default=0)
     correct = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['-rating', '-created']
+
     def __str__(self):
         return f'{self.author}: {self.text}'
 
     def upvote(self, user):
         try:
-            self.votes.create(user=user, post=self, up=True)
+            self.votes.create(user=user, answer=self, up=True)
             self.rating += 1
             self.save()
         except IntegrityError:
@@ -107,9 +119,9 @@ class Answer(models.Model):
                 return 'already_up_voted'
         return 'ok'
 
-    def down_vote(self, user):
+    def downvote(self, user):
         try:
-            self.votes.create(user=user, post=self, up=False)
+            self.votes.create(user=user, answer=self, up=False)
             self.rating -= 1
             self.save()
         except IntegrityError:
