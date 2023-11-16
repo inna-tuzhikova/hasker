@@ -1,15 +1,6 @@
 from django.db import models, IntegrityError
 
-
-class User(models.Model):
-    login = models.CharField(max_length=30, unique=True)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=30)
-    registration_datetime = models.DateTimeField()
-    avatar = models.CharField(max_length=2)
-
-    def __str__(self):
-        return self.login
+from members.models import Member
 
 
 class Tag(models.Model):
@@ -45,7 +36,7 @@ class QuestionManager(models.Manager):
 class Question(models.Model):
     caption = models.CharField(max_length=100)
     text = models.CharField(max_length=1000)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(Member, on_delete=models.CASCADE)
     created = models.DateTimeField()
     tags = models.ManyToManyField(Tag, related_name='questions')
     rating = models.IntegerField(default=0)
@@ -92,7 +83,7 @@ class Answer(models.Model):
         on_delete=models.CASCADE,
         related_name='answers'
     )
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(Member, on_delete=models.CASCADE)
     text = models.CharField(max_length=1000)
     created = models.DateTimeField()
     rating = models.IntegerField(default=0)
@@ -136,7 +127,7 @@ class Answer(models.Model):
 
 
 class QuestionVote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Member, on_delete=models.CASCADE)
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
@@ -149,7 +140,7 @@ class QuestionVote(models.Model):
 
 
 class AnswerVote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Member, on_delete=models.CASCADE)
     answer = models.ForeignKey(
         Answer,
         on_delete=models.CASCADE,
