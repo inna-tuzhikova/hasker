@@ -1,17 +1,21 @@
-from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.views.generic import DetailView
 
 from .forms import SignUpForm
+from .models import Member
+from questions.views import TopTrendingQuestionsMixin
 
 
-class MemberLoginView(LoginView):
+class MemberLoginView(TopTrendingQuestionsMixin, LoginView):
     redirect_authenticated_user = True
     next_page = 'questions:index'
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Invalid username or password')
+        messages.error(self.request, 'Invalid username or password!')
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -33,5 +37,25 @@ def signup(request):
             return redirect('questions:index')
     else:
         form = SignUpForm()
-    return render(request, 'registration/signup.html', dict(form=form))
+    trending = TopTrendingQuestionsMixin.get_trending()
+    return render(
+        request,
+        'registration/signup.html',
+        {
+            'form': form,
+            TopTrendingQuestionsMixin.trending_ctx_name: trending
+        }
+    )
 
+
+class MemberSettingsView(
+    TopTrendingQuestionsMixin,
+    LoginRequiredMixin,
+    DetailView
+):
+    login_url = 'login'
+    # model = Member
+    template_name = 'members/settings.html'
+
+    def get_object(self):
+        return Member.objects.get(user=self.request.user)

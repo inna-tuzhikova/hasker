@@ -1,0 +1,17 @@
+<h2 class="text-center">Trending</h2>
+<ul class="list-group list-group-flush">
+  {% for q in trending %}
+    <li
+      class="list-group-item border-0 text-truncate"
+      data-toggle="tooltip"
+      data-placement="bottom"
+      title="{{ q.caption }}">
+        <span class="badge bg-primary w-25">{{ q.rating }}</span>
+        <a
+          class="text-decoration-none"
+          href="{% url 'questions:question' question_id=q.id %}">
+            {{ q.caption }}
+        </a>
+    </li>
+  {% endfor %}
+</ul>

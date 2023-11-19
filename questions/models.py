@@ -14,12 +14,11 @@ class QuestionManager(models.Manager):
     def n_trending(self, top_n: int):
         return self.order_by('-rating')[:top_n]
 
-    # TODO: mb, rm
     def trending(self):
-        return self.order_by('-rating')
+        return self.order_by('-rating', '-created').select_related('author').prefetch_related('tags')
 
     def recent(self):
-        return self.order_by('-created')
+        return self.order_by('-created', '-rating').select_related('author').prefetch_related('tags')
 
     def by_tag(self, query: str):
         return Tag.objects.get(text=query).questions
