@@ -6,7 +6,7 @@
       data-toggle="tooltip"
       data-placement="bottom"
       title="{{ q.caption }}">
-        <span class="badge bg-primary w-25">{{ q.rating }}</span>
+        <span class="badge bg-success w-25">{{ q.rating }}</span>
         <a
           class="text-decoration-none"
           href="{% url 'questions:question' question_id=q.id %}">

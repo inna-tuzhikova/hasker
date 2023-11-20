@@ -3,8 +3,13 @@ from typing import Optional
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
+from django.urls import reverse
 
-from .models import Question
+from .models import Question, Tag
+from .forms import CreateQuestionForm
 
 
 class TopTrendingQuestionsMixin:
@@ -49,8 +54,30 @@ class IndexTrendingView(IndexView):
         return Question.objects.trending()
 
 
-def ask(request):
-    return HttpResponse('Ask!')
+class AskQuestion(TopTrendingQuestionsMixin, LoginRequiredMixin, CreateView):
+    model = Question
+    form_class = CreateQuestionForm
+    template_name = 'questions/ask.html'
+    login_url = 'login'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user.profile
+        form.instance.created = timezone.now()
+        new_question = form.save()
+        for tag in form.cleaned_data['tag_list']:
+            try:
+                tag_db = Tag.objects.get(text=tag)
+            except Tag.DoesNotExist:
+                tag_db = Tag(text=tag)
+                tag_db.save()
+            new_question.tags.add(tag_db)
+        return redirect('questions:question', question_id=new_question.pk)
+
+    def get_success_url(self):
+        return reverse(
+            'questions:question',
+            kwargs=dict(question_id=self.object.pk)
+        )
 
 
 def question(request, question_id: int):
