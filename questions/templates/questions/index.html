@@ -5,65 +5,20 @@
   <div class="btn-group" role="group">
     <a
       href="{% url 'questions:index' %}"
-      class="btn btn-outline-primary {% if sort_type == 'recent' %}active pe-none{% endif %}">
+      class="btn btn-outline-primary{% if sort_type == 'recent' %} active pe-none{% endif %}">
         New questions
     </a>
     <a
       href="{% url 'questions:index_trending' %}"
-      class="btn btn-outline-primary {% if sort_type == 'trending' %}active pe-none{% endif %}">
+      class="btn btn-outline-primary{% if sort_type == 'trending' %} active pe-none{% endif %}">
         Hot questions
     </a>
   </div>
   <ul class="list-group list-group-flush pt-3">
     {% for q in questions %}
-      <li
-        class="list-group-item border-0 text-truncate"
-        data-toggle="tooltip"
-        data-placement="bottom"
-        title="{{ q.caption }}">
-          <span>{{ q.rating }} Votes,</span>
-          <span>{{ q.answers.all|length }} Answers,</span>
-          <span>{{ q.caption }},</span>
-          {% for tag in q.tags.all %}
-            <span>{{ tag.text }}</span>
-          {% endfor %}
-          <span>{{ q.author.profile.username }},</span>
-          <span>{{ q.created }}</span>
-      </li>
+      {% include 'questions/question_card.html' with question=q %}
     {% endfor %}
   </ul>
-    {% if is_paginated %}
-      <ul class="pagination"
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page=1" aria-label="Previous">
-              <span aria-hidden="true">&laquo;&laquo;</span>
-            </a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-        {% endif %}
-        <li class="page-item active" aria-current="page">
-          <a class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
-        </li>
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
-              <span aria-hidden="true">&raquo;&raquo;</span>
-            </a>
-          </li>
-        {% endif %}
-        </span>
-      </ul>
-    {% endif %}
-
+{% include 'questions/pagination.html' %}
 </div>
 {% endblock %}

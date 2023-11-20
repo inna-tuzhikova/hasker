@@ -1,4 +1,5 @@
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
+from django.db.models import Q
 
 from members.models import Member
 
@@ -15,10 +16,20 @@ class QuestionManager(models.Manager):
         return self.order_by('-rating')[:top_n]
 
     def trending(self):
-        return self.order_by('-rating', '-created').select_related('author').prefetch_related('tags')
+        return (
+            self
+            .order_by('-rating', '-created')
+            .select_related('author')
+            .prefetch_related('tags')
+        )
 
     def recent(self):
-        return self.order_by('-created', '-rating').select_related('author').prefetch_related('tags')
+        return (
+            self
+            .order_by('-created', '-rating')
+            .select_related('author')
+            .prefetch_related('tags')
+        )
 
     def by_tag(self, query: str):
         return Tag.objects.get(text=query).questions
@@ -29,6 +40,15 @@ class QuestionManager(models.Manager):
             .select_related('author')
             .prefetch_related('answers', 'answers__author', 'tags')
             .get(pk=pk)
+        )
+
+    def search_by_text(self, query: str):
+        return (
+            self
+            .select_related('author')
+            .prefetch_related('tags')
+            .filter(Q(text__icontains=query) | Q(caption__icontains=query))
+            .order_by('-rating', '-created')
         )
 
 

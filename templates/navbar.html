@@ -6,8 +6,8 @@
         </button>
         <a class="navbar-brand" href="{% url 'questions:index' %}">Hasker</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-          <form class="d-flex ms-auto mb-2 mb-lg-0" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <form class="d-flex ms-auto mb-2 mb-lg-0" role="search" method="get" action="{% url 'questions:search' %}">
+            <input class="form-control me-2" type="text" placeholder="Search" name="q" />
             <button class="btn btn-outline-success" type="submit">Search</button>
           </form>
           <ul class="navbar-nav">

@@ -1,0 +1,14 @@
+<li
+  class="list-group-item text-truncate"
+  data-toggle="tooltip"
+  data-placement="bottom"
+  title="{{ question.caption }}">
+    <span>{{ question.rating }} Votes,</span>
+    <span>{{ question.answers.all|length }} Answers,</span>
+    <span>{{ question.caption }},</span>
+    {% for tag in question.tags.all %}
+      <span>{{ tag.text }}</span>
+      {% endfor %}
+    <span>{{ question.author.user.username }},</span>
+    <span>Asked {{ question.created }}</span>
+</li>

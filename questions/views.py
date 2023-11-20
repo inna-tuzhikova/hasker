@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView
 
 from .models import Question
@@ -26,7 +26,7 @@ class IndexView(TopTrendingQuestionsMixin, ListView):
     template_name = 'questions/index.html'
     model = Question
     context_object_name = 'questions'
-    paginate_by = 20
+    paginate_by = 2
     sort_type = None
 
     def get_context_data(self, **kwargs):
@@ -57,11 +57,26 @@ def question(request, question_id: int):
     return HttpResponse(f'Question {question_id} detail info')
 
 
-def search(request):
-    if request.method == 'GET':
-        query = request.GET.get('q')
-        return HttpResponse(f'Search results for {query}')
+class SearchView(TopTrendingQuestionsMixin, ListView):
+    model = Question
+    template_name = 'questions/search_results.html'
+    paginate_by = 2
+    context_object_name = 'questions'
+    tag_prefix = 'tag:'
+
+    def get(self, request):
+        query = self.request.GET.get('q')
+        if query.startswith(self.tag_prefix):
+            return redirect(
+                'questions:tag',
+                tag_text=query[len(self.tag_prefix):]
+            )
+        return super().get(request)
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        return Question.objects.search_by_text(query=query)
 
 
-def tag(request, tag_id: int):
-    return HttpResponse(f'Questions with tag {tag_id}')
+def tag(request, tag_text: str):
+    return HttpResponse(f'Questions with tag `{tag_text}`')
