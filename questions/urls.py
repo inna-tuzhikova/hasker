@@ -9,6 +9,6 @@ urlpatterns = [
     path('trending/', views.IndexTrendingView.as_view(), name='index_trending'),
     path('ask/', views.ask, name='ask'),
     path('question/<int:question_id>', views.question, name='question'),
-    path('search/', views.SearchView.as_view(), name='search'),
-    path('tag/<str:tag_text>', views.tag, name='tag'),
+    path('search/', views.SearchByQueryView.as_view(), name='search'),
+    path('tag/<str:tag_text>', views.SearchByTagView.as_view(), name='tag'),
 ]

@@ -2,12 +2,17 @@
 {% load static %}
 {% block content %}
 <div class="container">
-  <h1>Search results</h1>
-  <ul class="list-group list-group-flush pt-3">
-    {% for q in questions %}
-      {% include 'questions/question_card.html' with question=q %}
-    {% endfor %}
-  </ul>
+  <h3>
+    {% block title %}
+    {% endblock %}
+  </h3>
+  {% if questions %}
+    <ul class="list-group list-group-flush pt-3">
+      {% for q in questions %}
+        {% include 'questions/question_card.html' with question=q %}
+      {% endfor %}
+    </ul>
+  {% endif %}
 </div>
 {% include 'questions/pagination.html' %}
 {% endblock %}

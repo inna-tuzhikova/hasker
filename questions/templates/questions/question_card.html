@@ -1,14 +1,46 @@
 <li
-  class="list-group-item text-truncate"
+  class="list-group-item"
   data-toggle="tooltip"
   data-placement="bottom"
   title="{{ question.caption }}">
-    <span>{{ question.rating }} Votes,</span>
-    <span>{{ question.answers.all|length }} Answers,</span>
-    <span>{{ question.caption }},</span>
-    {% for tag in question.tags.all %}
-      <span>{{ tag.text }}</span>
-      {% endfor %}
-    <span>{{ question.author.user.username }},</span>
-    <span>Asked {{ question.created }}</span>
+    <div class="row">
+     <div class="col-xs-1 col-sm-2 col-md-2 col-lg-1 small">
+       <div class="row text-center">
+         <span>{{ question.rating }}</span>
+       </div>
+       <div class="row text-center">
+         <span>Votes</span>
+       </div>
+     </div>
+     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-1 small">
+       <div class="row text-center">
+         <span>{{ question.answers.all|length }}</span>
+       </div>
+       <div class="row text-center">
+         <span>Answers</span>
+       </div>
+     </div>
+     <div class="col-xs-12 col-sm-7 col-md-7 col-lg-7">
+       <div class="row">
+         <a href="{% url 'questions:question' question_id=question.id %}">
+           {{ question.caption }}
+         </a>
+       </div>
+       <div class="row">
+         <div>
+           {% for tag in question.tags.all %}
+             <a
+               href="{% url 'questions:tag' tag_text=tag.text %}"
+               class="badge text-bg-success text-decoration-none">
+                 {{ tag.text }}
+             </a>
+           {% endfor %}
+         </div>
+       </div>
+     </div>
+     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3 small">
+       <div class="row">{{ question.author.user.username }}</div>
+       <div class="row">Asked {{ question.created }}</div>
+     </div>
+    </div>
 </li>

@@ -26,7 +26,7 @@ class IndexView(TopTrendingQuestionsMixin, ListView):
     template_name = 'questions/index.html'
     model = Question
     context_object_name = 'questions'
-    paginate_by = 2
+    paginate_by = 20
     sort_type = None
 
     def get_context_data(self, **kwargs):
@@ -57,19 +57,31 @@ def question(request, question_id: int):
     return HttpResponse(f'Question {question_id} detail info')
 
 
-class SearchView(TopTrendingQuestionsMixin, ListView):
-    model = Question
-    template_name = 'questions/search_results.html'
-    paginate_by = 2
-    context_object_name = 'questions'
+class TagPrefixMixin:
     tag_prefix = 'tag:'
+
+    def has_tag_prefix(self, query: str):
+        return query.startswith(self.tag_prefix)
+
+    def extract_query(self, query: str):
+        return query[len(self.tag_prefix):]
+
+    def with_tag_prefix(self, query: str):
+        return self.tag_prefix + query
+
+
+class SearchByQueryView(TagPrefixMixin, TopTrendingQuestionsMixin, ListView):
+    model = Question
+    template_name = 'questions/search_results_by_query.html'
+    paginate_by = 20
+    context_object_name = 'questions'
 
     def get(self, request):
         query = self.request.GET.get('q')
-        if query.startswith(self.tag_prefix):
+        if self.has_tag_prefix(query):
             return redirect(
                 'questions:tag',
-                tag_text=query[len(self.tag_prefix):]
+                tag_text=self.extract_query(query)
             )
         return super().get(request)
 
@@ -77,6 +89,25 @@ class SearchView(TopTrendingQuestionsMixin, ListView):
         query = self.request.GET.get('q')
         return Question.objects.search_by_text(query=query)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q')
+        return context
 
-def tag(request, tag_text: str):
-    return HttpResponse(f'Questions with tag `{tag_text}`')
+
+class SearchByTagView(TagPrefixMixin, TopTrendingQuestionsMixin, ListView):
+    model = Question
+    template_name = 'questions/search_results_by_tag.html'
+    paginate_by = 20
+    context_object_name = 'questions'
+
+    def get_queryset(self):
+        tag = self.kwargs['tag_text']
+        return Question.objects.search_by_tag(tag)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.with_tag_prefix(
+            self.kwargs.get('tag_text')
+        )
+        return context

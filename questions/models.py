@@ -31,8 +31,19 @@ class QuestionManager(models.Manager):
             .prefetch_related('tags')
         )
 
-    def by_tag(self, query: str):
-        return Tag.objects.get(text=query).questions
+    def search_by_tag(self, query: str):
+        try:
+            tag = Tag.objects.get(text=query)
+        except Tag.DoesNotExist:
+            return Tag.objects.none()
+        else:
+            return (
+                tag
+                .questions
+                .select_related('author')
+                .prefetch_related('tags')
+                .order_by('-rating', '-created')
+            )
 
     def by_id(self, pk: int):
         return (
