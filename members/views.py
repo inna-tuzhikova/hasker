@@ -3,9 +3,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.views.generic import DetailView
+from django.views.generic.base import View, ContextMixin
 
-from .forms import SignUpForm
+from .forms import SignUpForm, MemberUpdateForm, UserUpdateForm
 from .models import Member
 from questions.views import TopTrendingQuestionsMixin
 
@@ -51,11 +51,32 @@ def signup(request):
 class MemberSettingsView(
     TopTrendingQuestionsMixin,
     LoginRequiredMixin,
-    DetailView
+    ContextMixin,
+    View
 ):
     login_url = 'login'
-    # model = Member
     template_name = 'members/settings.html'
 
-    def get_object(self):
-        return Member.objects.get(user=self.request.user)
+    def get(self, request):
+        user_form = UserUpdateForm(instance=request.user)
+        member_form = MemberUpdateForm(instance=request.user.profile)
+        context = self.get_context_data(
+            form=user_form,
+            member_form=member_form
+        )
+        return render(request, self.template_name, context=context)
+
+    def post(self, request):
+        user_form = UserUpdateForm(request.POST)
+        member_form = MemberUpdateForm(request.POST)
+        if user_form.is_valid() and member_form.is_valid():
+            request.user.email = user_form.cleaned_data['email']
+            request.user.save()
+            request.user.profile.avatar = member_form.cleaned_data['avatar']
+            request.user.profile.save()
+            return redirect('settings')
+        context = self.get_context_data(
+            form=user_form,
+            member_form=member_form
+        )
+        return render(request, self.template_name, context)
