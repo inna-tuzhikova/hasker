@@ -3,3 +3,4 @@
 .env.prod
 .env.prod.db
 staticfiles
+media

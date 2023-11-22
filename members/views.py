@@ -6,7 +6,6 @@ from django.shortcuts import render, redirect
 from django.views.generic.base import View, ContextMixin
 
 from .forms import SignUpForm, MemberUpdateForm, UserUpdateForm
-from .models import Member
 from questions.views import TopTrendingQuestionsMixin
 
 
@@ -25,7 +24,7 @@ class MemberLogoutView(LogoutView):
 
 def signup(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = SignUpForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             user.refresh_from_db()
@@ -68,7 +67,7 @@ class MemberSettingsView(
 
     def post(self, request):
         user_form = UserUpdateForm(request.POST)
-        member_form = MemberUpdateForm(request.POST)
+        member_form = MemberUpdateForm(request.POST, request.FILES)
         if user_form.is_valid() and member_form.is_valid():
             request.user.email = user_form.cleaned_data['email']
             request.user.save()

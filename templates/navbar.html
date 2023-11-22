@@ -16,11 +16,18 @@
       </form>
       <ul class="navbar-nav">
       {% if user.is_authenticated %}
+        {% if user.profile.avatar %}
+          <li class="nav-item" style="padding: 0px 10px">
+            <img
+              src="{{ user.profile.avatar.url }}"
+              alt="Logo"
+              height="40">
+          </li>
+        {% endif %}
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">{{ user.profile.avatar|upper }}</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'settings' %}">{{ user.username }}</a>
+          <a class="nav-link" href="{% url 'settings' %}">
+            {{ user.username }}
+          </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'questions:ask' %}">Ask!</a>

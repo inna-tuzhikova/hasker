@@ -10,7 +10,7 @@ class Member(models.Model):
         on_delete=models.CASCADE,
         related_name='profile'
     )
-    avatar = models.CharField(max_length=2)
+    avatar = models.ImageField(upload_to='avatars', null=True)
 
 
 @receiver(post_save, sender=User)

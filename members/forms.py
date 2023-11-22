@@ -6,7 +6,7 @@ from .models import Member
 
 
 class SignUpForm(UserCreationForm):
-    avatar = forms.CharField(max_length=2)
+    avatar = forms.ImageField(required=False)
     email = forms.EmailField()
 
     class Meta:
@@ -18,6 +18,10 @@ class MemberUpdateForm(forms.ModelForm):
     class Meta:
         model = Member
         fields = ['avatar']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['avatar'].required = False
 
 
 class UserUpdateForm(forms.ModelForm):

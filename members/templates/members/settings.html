@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <h2>Settings of {{ user.username }}</h2>
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for field in form %}
     <div class="mb-3">
