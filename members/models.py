@@ -12,6 +12,9 @@ class Member(models.Model):
     )
     avatar = models.ImageField(upload_to='avatars', null=True)
 
+    def __str__(self):
+        return self.user.__str__()
+
 
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):

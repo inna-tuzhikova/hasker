@@ -1,6 +1,6 @@
 {% load question_extras %}
 {% if is_paginated %}
-  <ul class="pagination"
+  <ul class="pagination">
     {% if page_obj.has_previous %}
       <li class="page-item">
         <a class="page-link" href="?{% query_transform page=1 %}" aria-label="Previous">

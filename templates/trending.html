@@ -9,7 +9,7 @@
         <span class="badge bg-success w-25">{{ q.rating }}</span>
         <a
           class="text-decoration-none"
-          href="{% url 'questions:question' question_id=q.id %}">
+          href="{% url 'questions:question' pk=q.id %}">
             {{ q.caption }}
         </a>
     </li>

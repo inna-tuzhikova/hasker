@@ -12,6 +12,7 @@ class Tag(models.Model):
 
 
 class QuestionManager(models.Manager):
+
     def n_trending(self, top_n: int):
         return self.order_by('-rating')[:top_n]
 
@@ -106,6 +107,22 @@ class Question(models.Model):
                 return 'already_down_voted'
         return 'ok'
 
+    def set_correct_answer(self, answer):
+        if answer.question == self:
+            if hasattr(self, 'correct_answer'):
+                if self.correct_answer.answer == answer:
+                    correct = CorrectAnswer.objects.get(answer=answer)
+                    correct.delete()
+                else:
+                    self.correct_answer.answer = answer
+                    self.correct_answer.save()
+            else:
+                self.correct_answer = CorrectAnswer(
+                    question=self,
+                    answer=answer
+                )
+                self.correct_answer.save()
+
 
 class Answer(models.Model):
     question = models.ForeignKey(
@@ -117,7 +134,6 @@ class Answer(models.Model):
     text = models.CharField(max_length=1000)
     created = models.DateTimeField()
     rating = models.IntegerField(default=0)
-    correct = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-rating', '-created']
@@ -180,3 +196,12 @@ class AnswerVote(models.Model):
 
     class Meta:
         unique_together = ('user', 'answer')
+
+
+class CorrectAnswer(models.Model):
+    question = models.OneToOneField(
+        Question,
+        on_delete=models.CASCADE,
+        related_name='correct_answer',
+    )
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)

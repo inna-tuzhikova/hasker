@@ -1,7 +1,7 @@
 from django.forms import ModelForm, Field, Textarea
 from django.core.exceptions import ValidationError
 
-from .models import Question
+from .models import Question, Answer
 
 
 class TagListField(Field):
@@ -27,4 +27,13 @@ class CreateQuestionForm(ModelForm):
         fields = ['caption', 'text']
         widgets = dict(
             text=Textarea(attrs={'cols': 80, 'rows': 20})
+        )
+
+
+class AddAnswerForm(ModelForm):
+    class Meta:
+        model = Answer
+        fields = ['text']
+        widgets = dict(
+            text=Textarea(attrs={'cols': 80, 'rows': 10})
         )
