@@ -6,18 +6,7 @@
   <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   {% for field in form %}
-    <div class="mb-3">
-      <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-      <input
-        type="{{ field.field.widget.input_type }}"
-        class="form-control"
-        id="{{ field.id_for_label }}"
-        name="{{ field.html_name }}"
-        value="{{ field.value|default_if_none:"" }}">
-      {% for error in field.errors %}
-        <div class="error text-danger">{{ error }}</div>
-      {% endfor %}
-     </div>
+    {% include 'form_field.html' %}
   {% endfor %}
   <button type="submit" class="btn btn-primary">Register</button>
 </form>
