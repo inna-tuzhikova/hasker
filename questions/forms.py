@@ -6,6 +6,7 @@ from .models import Question, Answer
 
 class TagListField(Field):
     LIST_SEP = ','
+    MAX_TAGS_PER_FIELD = 3
 
     def to_python(self, value):
         if not value:
@@ -14,6 +15,10 @@ class TagListField(Field):
 
     def validate(self, value):
         super(TagListField, self).validate(value)
+        if len(value) > self.MAX_TAGS_PER_FIELD:
+            raise ValidationError(
+                f'Maximum number of tags: {self.MAX_TAGS_PER_FIELD}'
+            )
         for tag in value:
             if not tag:
                 raise ValidationError('Tag should be non empty string')

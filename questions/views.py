@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.urls import reverse
 from django.contrib import messages
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 
 from .models import Question, Tag, Answer
 from .forms import CreateQuestionForm, AddAnswerForm
@@ -142,6 +144,7 @@ def question_detail(request, pk: int):
             a.created = timezone.now()
             a.save()
             messages.success(request, 'Your answer has been added')
+            notify_on_new_answer(request=request, question_id=pk)
         page_obj = paginator.get_page(1)
     else:
         add_answer_form = AddAnswerForm()
@@ -158,6 +161,24 @@ def question_detail(request, pk: int):
             TopTrendingQuestionsMixin.trending_ctx_name: trending
         }
     )
+
+
+def notify_on_new_answer(request, question_id):
+    ctx = dict(
+        username=request.user.username,
+        question_url=request.build_absolute_uri(
+            reverse('questions:question', kwargs=dict(pk=question_id))
+        )
+    )
+    html_body = render_to_string('questions/new_answer_email.html', ctx)
+    msg = EmailMultiAlternatives(
+        subject='New answer',
+        body='',
+        from_email=None,
+        to=[request.user.email]
+    )
+    msg.attach_alternative(html_body, 'text/html')
+    msg.send(fail_silently=False)
 
 
 class TagPrefixMixin:
