@@ -1,12 +1,9 @@
 from typing import Optional
 
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponseForbidden, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views import View
 from django.views.generic import ListView
-from django.views.generic.base import ContextMixin
-from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -62,7 +59,7 @@ class IndexTrendingView(IndexView):
         return Question.objects.trending()
 
 
-class AskQuestion(TopTrendingQuestionsMixin, LoginRequiredMixin, CreateView):
+class AskQuestionView(TopTrendingQuestionsMixin, LoginRequiredMixin, CreateView):
     model = Question
     form_class = CreateQuestionForm
     template_name = 'questions/ask.html'

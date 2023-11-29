@@ -7,6 +7,7 @@ from django.dispatch import receiver
 class Member(models.Model):
     user = models.OneToOneField(
         User,
+        primary_key=True,
         on_delete=models.CASCADE,
         related_name='profile'
     )

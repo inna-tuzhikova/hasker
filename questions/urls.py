@@ -7,7 +7,7 @@ app_name = 'questions'
 urlpatterns = [
     path('', views.IndexRecentView.as_view(), name='index'),
     path('trending/', views.IndexTrendingView.as_view(), name='index_trending'),
-    path('ask/', views.AskQuestion.as_view(), name='ask'),
+    path('ask/', views.AskQuestionView.as_view(), name='ask'),
     path(
         'question/<int:question_id>/answer/<int:answer_id>/upvote',
         views.upvote_answer,
