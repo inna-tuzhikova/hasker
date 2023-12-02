@@ -48,6 +48,11 @@ RUN poetry install --only dev
 WORKDIR /app
 COPY . .
 
+RUN sed -i 's/\r$//g' /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.ci.sh
+
+ENTRYPOINT ["/app/entrypoint.ci.sh"]
+
 # 'lint' stage runs flake and isort
 # running in check mode means build will fail if any linting errors occur
 FROM dev AS lint
