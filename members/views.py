@@ -11,6 +11,7 @@ from .forms import MemberUpdateForm, SignUpForm, UserUpdateForm
 
 
 class MemberLoginView(TopTrendingQuestionsMixin, LoginView):
+    """Allows user to login"""
     redirect_authenticated_user = True
     next_page = 'questions:index'
 
@@ -20,10 +21,12 @@ class MemberLoginView(TopTrendingQuestionsMixin, LoginView):
 
 
 class MemberLogoutView(LogoutView):
+    """Allows user to logout"""
     next_page = 'questions:index'
 
 
 def signup(request):
+    """New user registration"""
     if request.method == 'POST':
         form = SignUpForm(request.POST, request.FILES)
         if form.is_valid():
@@ -54,6 +57,7 @@ class MemberSettingsView(
     ContextMixin,
     View
 ):
+    """Allows user to check and edit settings"""
     login_url = 'login'
     template_name = 'members/settings.html'
 

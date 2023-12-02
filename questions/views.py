@@ -18,6 +18,7 @@ from .models import Answer, Question, Tag
 
 
 class TopTrendingQuestionsMixin:
+    """Mixin to add information about most rated questions"""
     top_n = 20
     trending_ctx_name = 'trending'
 
@@ -33,6 +34,7 @@ class TopTrendingQuestionsMixin:
 
 
 class IndexView(TopTrendingQuestionsMixin, ListView):
+    """Base class for index pages"""
     template_name = 'questions/index.html'
     model = Question
     context_object_name = 'questions'
@@ -46,6 +48,7 @@ class IndexView(TopTrendingQuestionsMixin, ListView):
 
 
 class IndexRecentView(IndexView):
+    """Index page with recent sort type"""
     sort_type = 'recent'
 
     def get_queryset(self):
@@ -53,6 +56,7 @@ class IndexRecentView(IndexView):
 
 
 class IndexTrendingView(IndexView):
+    """Index page with trending sort type"""
     sort_type = 'trending'
 
     def get_queryset(self):
@@ -64,6 +68,7 @@ class AskQuestionView(
     LoginRequiredMixin,
     CreateView
 ):
+    """View to add new question"""
     model = Question
     form_class = CreateQuestionForm
     template_name = 'questions/ask.html'
@@ -91,6 +96,7 @@ class AskQuestionView(
 
 @login_required(login_url='login')
 def upvote_question(request, pk):
+    """Increments question's rating"""
     q = get_object_or_404(Question, pk=pk)
     q.upvote(user=request.user.profile)
     return redirect('questions:question', pk=pk)
@@ -98,6 +104,7 @@ def upvote_question(request, pk):
 
 @login_required(login_url='login')
 def downvote_question(request, pk):
+    """Decrements question's rating"""
     q = get_object_or_404(Question, pk=pk)
     q.downvote(user=request.user.profile)
     return redirect('questions:question', pk=pk)
@@ -105,6 +112,7 @@ def downvote_question(request, pk):
 
 @login_required(login_url='login')
 def upvote_answer(request, question_id, answer_id):
+    """Increments answer's rating"""
     a = get_object_or_404(Answer, pk=answer_id)
     a.upvote(user=request.user.profile)
     return redirect('questions:question', pk=question_id)
@@ -112,6 +120,7 @@ def upvote_answer(request, question_id, answer_id):
 
 @login_required(login_url='login')
 def downvote_answer(request, question_id, answer_id):
+    """Decrements answer's rating"""
     a = get_object_or_404(Answer, pk=answer_id)
     a.downvote(user=request.user.profile)
     return redirect('questions:question', pk=question_id)
@@ -119,6 +128,7 @@ def downvote_answer(request, question_id, answer_id):
 
 @login_required(login_url='login')
 def set_correct_answer(request, question_id, answer_id):
+    """Allows question's author to choose the best answer"""
     q = get_object_or_404(Question, pk=question_id)
     a = get_object_or_404(Answer, pk=answer_id)
     if q.author.user.pk == request.user.pk:
@@ -128,6 +138,7 @@ def set_correct_answer(request, question_id, answer_id):
 
 
 def question_detail(request, pk: int):
+    """Question and its answers"""
     try:
         question = Question.objects.by_id(pk)
     except Question.DoesNotExist:
@@ -165,6 +176,7 @@ def question_detail(request, pk: int):
 
 
 def notify_on_new_answer(request, question_id):
+    """Sends email to question author when new answer is posted"""
     ctx = dict(
         username=request.user.username,
         question_url=request.build_absolute_uri(
@@ -183,6 +195,7 @@ def notify_on_new_answer(request, question_id):
 
 
 class TagPrefixMixin:
+    """Helper to process search tag notation"""
     tag_prefix = 'tag:'
 
     def has_tag_prefix(self, query: str):
@@ -196,6 +209,7 @@ class TagPrefixMixin:
 
 
 class SearchByQueryView(TagPrefixMixin, TopTrendingQuestionsMixin, ListView):
+    """View to search questions by text query"""
     model = Question
     template_name = 'questions/search_results_by_query.html'
     paginate_by = 20
@@ -221,6 +235,7 @@ class SearchByQueryView(TagPrefixMixin, TopTrendingQuestionsMixin, ListView):
 
 
 class SearchByTagView(TagPrefixMixin, TopTrendingQuestionsMixin, ListView):
+    """View to search questions by tag text"""
     model = Question
     template_name = 'questions/search_results_by_tag.html'
     paginate_by = 20

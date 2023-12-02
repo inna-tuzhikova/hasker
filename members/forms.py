@@ -6,6 +6,7 @@ from .models import Member
 
 
 class SignUpForm(UserCreationForm):
+    """Form with data for user registration"""
     avatar = forms.ImageField(required=False)
     email = forms.EmailField()
 
@@ -15,6 +16,7 @@ class SignUpForm(UserCreationForm):
 
 
 class MemberUpdateForm(forms.ModelForm):
+    """Form with data for user settings check/editing"""
     class Meta:
         model = Member
         fields = ['avatar']
@@ -25,6 +27,7 @@ class MemberUpdateForm(forms.ModelForm):
 
 
 class UserUpdateForm(forms.ModelForm):
+    """Form with data for user settings check/editing"""
     class Meta:
         model = User
         fields = ['email']

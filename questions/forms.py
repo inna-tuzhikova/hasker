@@ -5,6 +5,7 @@ from .models import Answer, Question
 
 
 class TagListField(Field):
+    """Field for question tags"""
     LIST_SEP = ','
     MAX_TAGS_PER_FIELD = 3
     MAX_LENGTH = 20
@@ -30,6 +31,7 @@ class TagListField(Field):
 
 
 class CreateQuestionForm(ModelForm):
+    """Form with data for adding new question"""
     tag_list = TagListField()
 
     class Meta:
@@ -41,6 +43,7 @@ class CreateQuestionForm(ModelForm):
 
 
 class AddAnswerForm(ModelForm):
+    """Form with data for adding new answer"""
     class Meta:
         model = Answer
         fields = ['text']
