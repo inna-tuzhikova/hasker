@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  service_test:
+  service_lint_test:
     build:
         context: .
         dockerfile: Dockerfile.ci
@@ -15,18 +15,8 @@ services:
       - POSTGRES_USER=hasker
       - POSTGRES_PASSWORD=hasker
       - POSTGRES_DB=hasker_test
-#  pgadmin:
-#    container_name: pgadmin
-#    image: dpage/pgadmin4:7
-#    restart: always
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: hasker@example.com
-#      PGADMIN_DEFAULT_PASSWORD: hasker
-#    ports:
-#      - "5050:80"
-#    volumes:
-#      - pgadmin_data:/var/lib/pgadmin
-#
-#volumes:
-#    postgres_data:
-#    pgadmin_data:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+    postgres_data:

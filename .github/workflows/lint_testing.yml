@@ -19,5 +19,5 @@ jobs:
     - name: Build docker images
       run: docker-compose build
 
-    - name: Run tests
-      run: docker-compose run service_test
+    - name: Run linters and tests
+      run: docker-compose run service_lint_test
