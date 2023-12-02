@@ -6,6 +6,17 @@ from django.urls import reverse
 from .models import Member
 
 
+def get_default_user():
+    user = User.objects.create_user(
+        username='test_user',
+        email='test@example.com',
+        password='test_password'
+    )
+    member = Member(user=user)
+    member.save()
+    return user, member
+
+
 class MemberModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -31,13 +42,7 @@ class MemberModelTests(TestCase):
 class MemberLoginViewTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username='test_user',
-            email='test@example.com',
-            password='test_password'
-        )
-        member = Member(user=self.user)
-        member.save()
+        self.user, self.member = get_default_user()
 
     def test_invalid_login(self):
         response = self.client.post(
@@ -89,13 +94,7 @@ class MemberLoginViewTests(TestCase):
 class MemberLogoutViewTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username='test_user',
-            email='test@example.com',
-            password='test_password'
-        )
-        member = Member(user=self.user)
-        member.save()
+        self.user, self.member = get_default_user()
 
     def test_user_logout(self):
         self.client.force_login(self.user)
@@ -112,13 +111,7 @@ class MemberLogoutViewTests(TestCase):
 class MemberSignupViewTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username='test_user',
-            email='test@example.com',
-            password='test_password'
-        )
-        member = Member(user=self.user)
-        member.save()
+        self.user, self.member = get_default_user()
 
     def test_not_authorized_user(self):
         response = self.client.get(reverse('signup'))
@@ -214,13 +207,7 @@ class MemberSignupViewTests(TestCase):
 class MemberSettingsViewTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username='test_user',
-            email='test@example.com',
-            password='test_password'
-        )
-        member = Member(user=self.user)
-        member.save()
+        self.user, self.member = get_default_user()
 
     def test_not_authorized_user(self):
         response = self.client.get(reverse('settings'))
