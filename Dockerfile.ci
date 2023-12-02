@@ -48,7 +48,7 @@ RUN poetry install --only dev
 WORKDIR /app
 COPY . .
 
-RUN sed -i 's/\r$//g' /app/entrypoint.sh
+RUN sed -i 's/\r$//g' /app/entrypoint.ci.sh
 RUN chmod +x /app/entrypoint.ci.sh
 
 ENTRYPOINT ["/app/entrypoint.ci.sh"]
