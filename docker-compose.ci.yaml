@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  web:
+    build:
+        context: .
+        dockerfile: Dockerfile.ci
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env.dev
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=hasker
+      - POSTGRES_PASSWORD=hasker
+      - POSTGRES_DB=hasker_test
+#  pgadmin:
+#    container_name: pgadmin
+#    image: dpage/pgadmin4:7
+#    restart: always
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: hasker@example.com
+#      PGADMIN_DEFAULT_PASSWORD: hasker
+#    ports:
+#      - "5050:80"
+#    volumes:
+#      - pgadmin_data:/var/lib/pgadmin
+#
+#volumes:
+#    postgres_data:
+#    pgadmin_data:

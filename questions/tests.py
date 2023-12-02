@@ -1,15 +1,16 @@
 from datetime import timedelta
 
-from django.core import mail
-from django.test import TestCase, Client
-from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.exceptions import ValidationError
-from django.utils import timezone
+from django.db import DataError, IntegrityError
+from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from members.models import Member
-from .models import Tag, Question, Answer
+
+from .models import Answer, Question, Tag
 
 
 def get_default_users():
@@ -237,7 +238,7 @@ class AnswerModelTests(TestCase):
         get_default_answer(self.question, self.second_member)
 
     def test_add_invalid_answer(self):
-        with self.assertRaises(ValidationError):
+        with self.assertRaises((ValidationError, DataError)):
             a = get_default_answer(
                 self.question, self.second_member, text='T' * 1001
             )
@@ -976,10 +977,9 @@ class QuestionDetailViewTests(TestCase):
             get_default_answer(self.question, self.second_member)
 
         response = self.client.get(reverse(
-                'questions:question',
-                kwargs=dict(pk=self.question.pk)
-            )
-        )
+            'questions:question',
+            kwargs=dict(pk=self.question.pk)
+        ))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['page_obj']), 20)
 

@@ -1,7 +1,7 @@
-from django.forms import ModelForm, Field, Textarea
 from django.core.exceptions import ValidationError
+from django.forms import Field, ModelForm, Textarea
 
-from .models import Question, Answer
+from .models import Answer, Question
 
 
 class TagListField(Field):

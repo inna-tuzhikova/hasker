@@ -1,20 +1,20 @@
 from typing import Optional
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
-from django.http import HttpResponseForbidden, Http404
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.urls import reverse
-from django.contrib import messages
-from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
 
-from .models import Question, Tag, Answer
-from .forms import CreateQuestionForm, AddAnswerForm
+from .forms import AddAnswerForm, CreateQuestionForm
+from .models import Answer, Question, Tag
 
 
 class TopTrendingQuestionsMixin:
@@ -59,7 +59,11 @@ class IndexTrendingView(IndexView):
         return Question.objects.trending()
 
 
-class AskQuestionView(TopTrendingQuestionsMixin, LoginRequiredMixin, CreateView):
+class AskQuestionView(
+    TopTrendingQuestionsMixin,
+    LoginRequiredMixin,
+    CreateView
+):
     model = Question
     form_class = CreateQuestionForm
     template_name = 'questions/ask.html'

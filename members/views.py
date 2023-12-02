@@ -1,12 +1,13 @@
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.views.generic.base import View, ContextMixin
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.shortcuts import redirect, render
+from django.views.generic.base import ContextMixin, View
 
-from .forms import SignUpForm, MemberUpdateForm, UserUpdateForm
 from questions.views import TopTrendingQuestionsMixin
+
+from .forms import MemberUpdateForm, SignUpForm, UserUpdateForm
 
 
 class MemberLoginView(TopTrendingQuestionsMixin, LoginView):
