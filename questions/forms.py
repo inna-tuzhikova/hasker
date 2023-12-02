@@ -10,12 +10,12 @@ class TagListField(Field):
     MAX_TAGS_PER_FIELD = 3
     MAX_LENGTH = 20
 
-    def to_python(self, value):
+    def to_python(self, value: str) -> list[str]:
         if not value:
             return []
         return [v.strip() for v in value.strip().split(self.LIST_SEP)]
 
-    def validate(self, value):
+    def validate(self, value: list[str]) -> None:
         super(TagListField, self).validate(value)
         if len(value) > self.MAX_TAGS_PER_FIELD:
             raise ValidationError(

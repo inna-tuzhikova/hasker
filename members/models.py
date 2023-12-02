@@ -13,12 +13,12 @@ class Member(models.Model):
     )
     avatar = models.ImageField(upload_to='avatars', null=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.user.__str__()
 
 
 @receiver(post_save, sender=User)
-def update_user_profile(sender, instance, created, **kwargs):
+def update_user_profile(sender, instance, created, **kwargs) -> None:
     if created:
         Member.objects.create(user=instance)
     instance.profile.save()

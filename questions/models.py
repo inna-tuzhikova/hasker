@@ -1,5 +1,5 @@
 from django.db import IntegrityError, models
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from members.models import Member
 
@@ -7,16 +7,16 @@ from members.models import Member
 class Tag(models.Model):
     text = models.CharField(max_length=20, unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.text
 
 
 class QuestionManager(models.Manager):
 
-    def n_trending(self, top_n: int):
+    def n_trending(self, top_n: int) -> QuerySet:
         return self.order_by('-rating')[:top_n]
 
-    def trending(self):
+    def trending(self) -> QuerySet:
         return (
             self
             .order_by('-rating', '-created')
@@ -24,7 +24,7 @@ class QuestionManager(models.Manager):
             .prefetch_related('tags')
         )
 
-    def recent(self):
+    def recent(self) -> QuerySet:
         return (
             self
             .order_by('-created', '-rating')
@@ -32,7 +32,7 @@ class QuestionManager(models.Manager):
             .prefetch_related('tags')
         )
 
-    def search_by_tag(self, query: str):
+    def search_by_tag(self, query: str) -> QuerySet:
         try:
             tag = Tag.objects.get(text=query)
         except Tag.DoesNotExist:
@@ -46,7 +46,7 @@ class QuestionManager(models.Manager):
                 .order_by('-rating', '-created')
             )
 
-    def by_id(self, pk: int):
+    def by_id(self, pk: int) -> 'Question':
         return (
             self
             .select_related('author')
@@ -54,7 +54,7 @@ class QuestionManager(models.Manager):
             .get(pk=pk)
         )
 
-    def search_by_text(self, query: str):
+    def search_by_text(self, query: str) -> QuerySet:
         return (
             self
             .select_related('author')
@@ -74,10 +74,10 @@ class Question(models.Model):
 
     objects = QuestionManager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.author}: {self.caption}'
 
-    def upvote(self, user):
+    def upvote(self, user) -> None:
         try:
             self.votes.create(user=user, question=self, up=True)
             self.rating += 1
@@ -88,11 +88,8 @@ class Question(models.Model):
                 vote.update(up=True)
                 self.rating += 2
                 self.save()
-            else:
-                return 'already_up_voted'
-        return 'ok'
 
-    def downvote(self, user):
+    def downvote(self, user) -> None:
         try:
             self.votes.create(user=user, question=self, up=False)
             self.rating -= 1
@@ -103,11 +100,8 @@ class Question(models.Model):
                 vote.update(up=False)
                 self.rating -= 2
                 self.save()
-            else:
-                return 'already_down_voted'
-        return 'ok'
 
-    def set_correct_answer(self, answer):
+    def set_correct_answer(self, answer) -> None:
         if answer.question == self:
             if hasattr(self, 'correct_answer'):
                 if self.correct_answer.answer == answer:
@@ -138,10 +132,10 @@ class Answer(models.Model):
     class Meta:
         ordering = ['-rating', '-created']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.author}: {self.text}'
 
-    def upvote(self, user):
+    def upvote(self, user) -> None:
         try:
             self.votes.create(user=user, answer=self, up=True)
             self.rating += 1
@@ -152,11 +146,8 @@ class Answer(models.Model):
                 vote.update(up=True)
                 self.rating += 2
                 self.save()
-            else:
-                return 'already_up_voted'
-        return 'ok'
 
-    def downvote(self, user):
+    def downvote(self, user) -> None:
         try:
             self.votes.create(user=user, answer=self, up=False)
             self.rating -= 1
@@ -167,9 +158,6 @@ class Answer(models.Model):
                 vote.update(up=False)
                 self.rating -= 2
                 self.save()
-            else:
-                return 'already_down_voted'
-        return 'ok'
 
 
 class QuestionVote(models.Model):

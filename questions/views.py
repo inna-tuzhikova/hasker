@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
+from django.forms import Form
 from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -74,7 +75,7 @@ class AskQuestionView(
     template_name = 'questions/ask.html'
     login_url = 'login'
 
-    def form_valid(self, form):
+    def form_valid(self, form: Form):
         form.instance.author = self.request.user.profile
         form.instance.created = timezone.now()
         new_question = form.save()
@@ -95,7 +96,7 @@ class AskQuestionView(
 
 
 @login_required(login_url='login')
-def upvote_question(request, pk):
+def upvote_question(request, pk: int):
     """Increments question's rating"""
     q = get_object_or_404(Question, pk=pk)
     q.upvote(user=request.user.profile)
@@ -103,7 +104,7 @@ def upvote_question(request, pk):
 
 
 @login_required(login_url='login')
-def downvote_question(request, pk):
+def downvote_question(request, pk: int):
     """Decrements question's rating"""
     q = get_object_or_404(Question, pk=pk)
     q.downvote(user=request.user.profile)
@@ -111,7 +112,7 @@ def downvote_question(request, pk):
 
 
 @login_required(login_url='login')
-def upvote_answer(request, question_id, answer_id):
+def upvote_answer(request, question_id: int, answer_id: int):
     """Increments answer's rating"""
     a = get_object_or_404(Answer, pk=answer_id)
     a.upvote(user=request.user.profile)
@@ -119,7 +120,7 @@ def upvote_answer(request, question_id, answer_id):
 
 
 @login_required(login_url='login')
-def downvote_answer(request, question_id, answer_id):
+def downvote_answer(request, question_id: int, answer_id: int):
     """Decrements answer's rating"""
     a = get_object_or_404(Answer, pk=answer_id)
     a.downvote(user=request.user.profile)
@@ -127,7 +128,7 @@ def downvote_answer(request, question_id, answer_id):
 
 
 @login_required(login_url='login')
-def set_correct_answer(request, question_id, answer_id):
+def set_correct_answer(request, question_id: int, answer_id: int):
     """Allows question's author to choose the best answer"""
     q = get_object_or_404(Question, pk=question_id)
     a = get_object_or_404(Answer, pk=answer_id)
@@ -175,7 +176,7 @@ def question_detail(request, pk: int):
     )
 
 
-def notify_on_new_answer(request, question_id):
+def notify_on_new_answer(request, question_id: int):
     """Sends email to question author when new answer is posted"""
     ctx = dict(
         username=request.user.username,

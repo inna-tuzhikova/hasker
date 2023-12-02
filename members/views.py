@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.forms import Form
 from django.shortcuts import redirect, render
 from django.views.generic.base import ContextMixin, View
 
@@ -15,7 +16,7 @@ class MemberLoginView(TopTrendingQuestionsMixin, LoginView):
     redirect_authenticated_user = True
     next_page = 'questions:index'
 
-    def form_invalid(self, form):
+    def form_invalid(self, form: Form):
         messages.error(self.request, 'Invalid username or password!')
         return self.render_to_response(self.get_context_data(form=form))
 
