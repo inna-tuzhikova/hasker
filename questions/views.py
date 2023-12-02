@@ -145,7 +145,7 @@ def question_detail(request, pk: int):
     except Question.DoesNotExist:
         raise Http404(f'Question #{pk} not found')
 
-    paginator = Paginator(question.answers.all(), 20)
+    paginator = Paginator(question.answers.all(), 30)
     trending = TopTrendingQuestionsMixin.get_trending()
 
     if request.method == 'POST' and request.user.is_authenticated:

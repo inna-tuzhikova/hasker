@@ -973,7 +973,7 @@ class QuestionDetailViewTests(TestCase):
         self.assertEqual(mail.outbox[0].to[0], self.question.author.user.email)
 
     def test_pagination(self):
-        for _ in range(21):
+        for _ in range(31):
             get_default_answer(self.question, self.second_member)
 
         response = self.client.get(reverse(
@@ -981,7 +981,7 @@ class QuestionDetailViewTests(TestCase):
             kwargs=dict(pk=self.question.pk)
         ))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['page_obj']), 20)
+        self.assertEqual(len(response.context['page_obj']), 30)
 
         response = self.client.get(
             reverse(
