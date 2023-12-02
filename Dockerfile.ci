@@ -53,14 +53,10 @@ RUN chmod +x /app/entrypoint.ci.sh
 
 ENTRYPOINT ["/app/entrypoint.ci.sh"]
 
-# 'lint' stage runs flake and isort
-# running in check mode means build will fail if any linting errors occur
-FROM dev AS lint
+# 'lint_test' stage runs flake8, isort and app tests
+# coverage.  Build will fail if test coverage is under 95%
+FROM dev AS lint_test
 RUN flake8 --count --show-source --statistics hasker members questions
 RUN isort --check-only hasker members questions
-CMD ["tail", "-f", "/dev/null"]
 
-# 'test' stage runs our unit tests with pytest and
-# coverage.  Build will fail if test coverage is under 95%
-FROM dev AS test
-CMD ["python", "manage.py", "test"]
+CMD ["sh", "-c", "python manage.py test"]
