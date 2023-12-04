@@ -26,9 +26,19 @@ class MemberLogoutView(LogoutView):
     next_page = 'questions:index'
 
 
-def signup(request):
+class MemberSignupView(
+    TopTrendingQuestionsMixin,
+    ContextMixin,
+    View
+):
     """New user registration"""
-    if request.method == 'POST':
+    template_name = 'registration/signup.html'
+
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, self.template_name, dict(form=form))
+
+    def post(self, request):
         form = SignUpForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
@@ -39,17 +49,7 @@ def signup(request):
             user = authenticate(username=user.username, password=raw_password)
             login(request, user)
             return redirect('questions:index')
-    else:
-        form = SignUpForm()
-    trending = TopTrendingQuestionsMixin.get_trending()
-    return render(
-        request,
-        'registration/signup.html',
-        {
-            'form': form,
-            TopTrendingQuestionsMixin.trending_ctx_name: trending
-        }
-    )
+        return render(request, self.template_name, dict(form=form))
 
 
 class MemberSettingsView(

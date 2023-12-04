@@ -1,18 +1,20 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.forms import Form
-from django.http import Http404, HttpResponseForbidden
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
+from django.views.generic.base import ContextMixin, View
 from django.views.generic.edit import CreateView
+
+from members.models import Member
 
 from .forms import AddAnswerForm, CreateQuestionForm
 from .models import Answer, Question, Tag
@@ -95,62 +97,102 @@ class AskQuestionView(
         )
 
 
-@login_required(login_url='login')
-def upvote_question(request, pk: int):
+class QuestionVoteView(LoginRequiredMixin, View):
+    """Base for questions votes"""
+    login_url = 'login'
+
+    def post(self, request, pk: int):
+        q = get_object_or_404(Question, pk=pk)
+        self.get_voter(q)(request.user.profile)
+        return redirect('questions:question', pk=pk)
+
+    def get_voter(self, question: Question) -> Callable[[Member], None]:
+        """Returns method for specific vote action by specified user"""
+        raise NotImplementedError
+
+
+class UpvoteQuestionView(QuestionVoteView):
     """Increments question's rating"""
-    q = get_object_or_404(Question, pk=pk)
-    q.upvote(user=request.user.profile)
-    return redirect('questions:question', pk=pk)
+    def get_voter(self, question: Question) -> Callable[[Member], None]:
+        return question.upvote
 
 
-@login_required(login_url='login')
-def downvote_question(request, pk: int):
+class DownvoteQuestionView(QuestionVoteView):
     """Decrements question's rating"""
-    q = get_object_or_404(Question, pk=pk)
-    q.downvote(user=request.user.profile)
-    return redirect('questions:question', pk=pk)
+    def get_voter(self, question: Question) -> Callable[[Member], None]:
+        return question.downvote
 
 
-@login_required(login_url='login')
-def upvote_answer(request, question_id: int, answer_id: int):
-    """Increments answer's rating"""
-    a = get_object_or_404(Answer, pk=answer_id)
-    a.upvote(user=request.user.profile)
-    return redirect('questions:question', pk=question_id)
+class AnswerVoteView(LoginRequiredMixin, View):
+    """Base for answers votes"""
+    login_url = 'login'
 
-
-@login_required(login_url='login')
-def downvote_answer(request, question_id: int, answer_id: int):
-    """Decrements answer's rating"""
-    a = get_object_or_404(Answer, pk=answer_id)
-    a.downvote(user=request.user.profile)
-    return redirect('questions:question', pk=question_id)
-
-
-@login_required(login_url='login')
-def set_correct_answer(request, question_id: int, answer_id: int):
-    """Allows question's author to choose the best answer"""
-    q = get_object_or_404(Question, pk=question_id)
-    a = get_object_or_404(Answer, pk=answer_id)
-    if q.author.user.pk == request.user.pk:
-        q.set_correct_answer(a)
+    def post(self, request, question_id: int, answer_id: int):
+        a = get_object_or_404(Answer, pk=answer_id)
+        self.get_voter(a)(request.user.profile)
         return redirect('questions:question', pk=question_id)
-    return HttpResponseForbidden('Only author can choose the best answer')
+
+    def get_voter(self, answer: Answer) -> Callable[[Member], None]:
+        """Returns method for specific vote action by specified user"""
+        raise NotImplementedError
 
 
-def question_detail(request, pk: int):
+class UpvoteAnswerView(AnswerVoteView):
+    """Increments answer's rating"""
+    def get_voter(self, answer: Answer) -> Callable[[Member], None]:
+        return answer.upvote
+
+
+class DownvoteAnswerView(AnswerVoteView):
+    """Decrements answer's rating"""
+    def get_voter(self, answer: Answer) -> Callable[[Member], None]:
+        return answer.downvote
+
+
+class SetCorrectAnswerView(LoginRequiredMixin, View):
+    """Allows question's author to choose the best answer"""
+    login_url = 'login'
+
+    def post(self, request, question_id: int, answer_id: int):
+        q = get_object_or_404(Question, pk=question_id)
+        a = get_object_or_404(Answer, pk=answer_id)
+        if q.author.user.pk == request.user.pk:
+            q.set_correct_answer(a)
+            return redirect('questions:question', pk=question_id)
+        return HttpResponseForbidden('Only author can choose the best answer')
+
+
+class QuestionDetailView(TopTrendingQuestionsMixin, ContextMixin, View):
     """Question and its answers"""
-    try:
-        question = Question.objects.by_id(pk)
-    except Question.DoesNotExist:
-        raise Http404(f'Question #{pk} not found')
+    template_name = 'questions/question.html'
 
-    paginator = Paginator(question.answers.all(), 30)
-    trending = TopTrendingQuestionsMixin.get_trending()
+    def get(
+        self,
+        request,
+        pk: int,
+        question: Question | None = None,
+        add_answer_form: AddAnswerForm | None = None
+    ):
+        question = question or get_object_or_404(Question, pk=pk)
+        paginator = Paginator(question.answers.all(), 30)
+        page_obj = paginator.get_page(request.GET.get('page'))
+        add_answer_form = add_answer_form or AddAnswerForm()
+        context = super().get_context_data(
+            question=question,
+            page_obj=page_obj,
+            is_paginated=page_obj.paginator.num_pages > 1,
+            add_answer_form=add_answer_form,
+        )
+        return render(
+            request,
+            self.template_name,
+            context
+        )
 
-    if request.method == 'POST' and request.user.is_authenticated:
+    def post(self, request, pk: int):
+        question = get_object_or_404(Question, pk=pk)
         add_answer_form = AddAnswerForm(request.POST)
-        if add_answer_form.is_valid():
+        if request.user.is_authenticated and add_answer_form.is_valid():
             a = add_answer_form.save(commit=False)
             a.question = question
             a.author = request.user.profile
@@ -158,22 +200,8 @@ def question_detail(request, pk: int):
             a.save()
             messages.success(request, 'Your answer has been added')
             notify_on_new_answer(request=request, question_id=pk)
-        page_obj = paginator.get_page(1)
-    else:
-        add_answer_form = AddAnswerForm()
-        page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(
-        request,
-        'questions/question.html',
-        {
-            'question': question,
-            'page_obj': page_obj,
-            'is_paginated': page_obj.paginator.num_pages > 1,
-            'add_answer_form': add_answer_form,
-            TopTrendingQuestionsMixin.trending_ctx_name: trending
-        }
-    )
+            return redirect('questions:question', pk=pk)
+        return self.get(request, pk, question, add_answer_form)
 
 
 def notify_on_new_answer(request, question_id: int):

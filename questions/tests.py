@@ -464,14 +464,14 @@ class UpvoteQuestionViewTests(TestCase):
         self.assertEqual(self.question.rating, 0)
 
     def test_upvote_unknown_question(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_question',
             kwargs=dict(pk=666)
         ))
         self.assertEqual(response.status_code, 404)
 
     def test_question_upvote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -480,7 +480,7 @@ class UpvoteQuestionViewTests(TestCase):
         self.assertEqual(self.question.rating, 1)
 
     def test_question_upvote_twice(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -490,7 +490,7 @@ class UpvoteQuestionViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -499,7 +499,7 @@ class UpvoteQuestionViewTests(TestCase):
         self.assertEqual(self.question.rating, 2)
 
     def test_question_up_down_vote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -509,7 +509,7 @@ class UpvoteQuestionViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -539,14 +539,14 @@ class DownvoteQuestionViewTests(TestCase):
         self.assertEqual(self.question.rating, 0)
 
     def test_downvote_unknown_question(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_question',
             kwargs=dict(pk=666)
         ))
         self.assertEqual(response.status_code, 404)
 
     def test_question_downvote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -555,7 +555,7 @@ class DownvoteQuestionViewTests(TestCase):
         self.assertEqual(self.question.rating, -1)
 
     def test_question_downvote_twice(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -565,7 +565,7 @@ class DownvoteQuestionViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_question',
             kwargs=dict(pk=self.question.pk)
         ))
@@ -587,7 +587,7 @@ class UpvoteAnswerViewTests(TestCase):
 
     def test_not_authorized_user(self):
         self.client.logout()
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -599,7 +599,7 @@ class UpvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 0)
 
     def test_upvote_unknown_answer(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -611,7 +611,7 @@ class UpvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 0)
 
     def test_answer_upvote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -623,7 +623,7 @@ class UpvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 1)
 
     def test_answer_upvote_twice(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -636,7 +636,7 @@ class UpvoteAnswerViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -648,7 +648,7 @@ class UpvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 2)
 
     def test_answer_up_down_vote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:upvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -661,7 +661,7 @@ class UpvoteAnswerViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -686,7 +686,7 @@ class DownvoteAnswerViewTests(TestCase):
 
     def test_not_authorized_user(self):
         self.client.logout()
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -698,7 +698,7 @@ class DownvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 0)
 
     def test_downvote_unknown_answer(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -710,7 +710,7 @@ class DownvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, 0)
 
     def test_answer_downvote(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -722,7 +722,7 @@ class DownvoteAnswerViewTests(TestCase):
         self.assertEqual(self.answer.rating, -1)
 
     def test_answer_downvote_twice(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -735,7 +735,7 @@ class DownvoteAnswerViewTests(TestCase):
 
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:downvote_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -760,7 +760,7 @@ class SetCorrectAnswerViewTests(TestCase):
 
     def test_not_authorized_user(self):
         self.client.logout()
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -773,7 +773,7 @@ class SetCorrectAnswerViewTests(TestCase):
             print(self.question.correct_answer)
 
     def test_unknown_question(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=666,
@@ -786,7 +786,7 @@ class SetCorrectAnswerViewTests(TestCase):
             print(self.question.correct_answer)
 
     def test_unknown_answer(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -801,7 +801,7 @@ class SetCorrectAnswerViewTests(TestCase):
     def test_mismatched_question_and_answer(self):
         new_question = get_default_question(self.member)
         new_answer = get_default_answer(new_question, self.second_member)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -814,7 +814,7 @@ class SetCorrectAnswerViewTests(TestCase):
             print(self.question.correct_answer)
 
     def test_set_by_question_author(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -827,7 +827,7 @@ class SetCorrectAnswerViewTests(TestCase):
     def test_set_correct_by_non_question_author(self):
         self.client.logout()
         self.client.force_login(self.second_user)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -840,7 +840,7 @@ class SetCorrectAnswerViewTests(TestCase):
             print(self.question.correct_answer)
 
     def test_toggle_best_answer(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -850,7 +850,7 @@ class SetCorrectAnswerViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.question.correct_answer.answer, self.answer)
 
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -864,7 +864,7 @@ class SetCorrectAnswerViewTests(TestCase):
             print(self.question.correct_answer)
 
     def test_change_best_answer(self):
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -875,7 +875,7 @@ class SetCorrectAnswerViewTests(TestCase):
         self.assertEqual(self.question.correct_answer.answer, self.answer)
 
         new_answer = get_default_answer(self.question, self.second_member)
-        response = self.client.get(reverse(
+        response = self.client.post(reverse(
             'questions:set_correct_answer',
             kwargs=dict(
                 question_id=self.question.pk,
@@ -956,7 +956,7 @@ class QuestionDetailViewTests(TestCase):
                 text='Test'
             )
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(self.question.answers.count(), 2)
 
     def test_email_on_new_answer(self):
@@ -969,7 +969,7 @@ class QuestionDetailViewTests(TestCase):
                 text='Test'
             )
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(mail.outbox[0].to[0], self.question.author.user.email)
 
     def test_pagination(self):
