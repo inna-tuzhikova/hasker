@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container" xmlns="http://www.w3.org/1999/html">
+  <h2>Ask a question</h2>
+  <form method="post">
+  {% csrf_token %}
+  {% for field in form %}
+    {% include 'form_field.html' %}
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Ask!</button>
+</form>
+</div>
+{% endblock %}

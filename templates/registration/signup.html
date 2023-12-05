@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <h1>Sign up</h1>
+  <form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for field in form %}
+    {% include 'form_field.html' %}
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+</div>
+{% endblock %}

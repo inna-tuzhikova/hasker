@@ -1,0 +1,52 @@
+<li
+  class="list-group-item"
+  data-toggle="tooltip"
+  data-placement="bottom">
+    <div class="row mt-3">
+      <div class="col-xs-1 col-sm-2 col-md-1 col-lg-1 text-center">
+        <form action="{% url 'questions:upvote_question' pk=question.pk %}" method="post">
+          {% csrf_token %}
+          <button class="btn btn-dark btn-sm" type="submit">▲</button>
+        </form>
+        <div>{{ question.rating }}</div>
+        <form action="{% url 'questions:downvote_question' pk=question.pk %}" method="post">
+          {% csrf_token %}
+          <button class="btn btn-dark btn-sm" type="submit">▼</button>
+        </form>
+      </div>
+      <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+        <div class="row mb-3">
+          {{ question.text }}
+        </div>
+        <div class="row justify-content-between">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 mb-3">
+            <div>
+            {% for tag in question.tags.all %}
+              <a
+                href="{% url 'questions:tag' tag_text=tag.text %}"
+                class="badge text-bg-success text-decoration-none ">
+                  {{ tag.text }}
+              </a>
+            {% endfor %}
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3">
+            <div class="row">
+              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+              {% if question.author.avatar %}
+              <img
+                src="{{ question.author.avatar.url }}"
+                alt="Logo"
+                height="40">
+              {% endif %}
+            </div>
+              <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+              <div class="row ">{{ question.author.user.username }}</div>
+              <div class="row small">{{ question.created }}</div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</li>

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="h3">{{ question.caption }}</div>
+<ul class="list-group list-group-flush pt-3">
+  {% include 'questions/question_detail_card.html' %}
+  {% for answer in page_obj %}
+    {% include 'questions/answer_card.html' with answer=answer %}
+  {% endfor %}
+</ul>
+{% include 'questions/pagination.html' %}
+{% if user.is_authenticated %}
+  <div class="h4">Your answer</div>
+  <form method="post" action="{% url 'questions:question' pk=question.id %}">
+  {% csrf_token %}
+  {% for field in add_answer_form %}
+    {% include 'form_field.html' %}
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endif %}
+{% endblock %}

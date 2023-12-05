@@ -1,0 +1,75 @@
+# Creating a python base with shared environment variables
+FROM python:3.10-slim as python-base
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_NO_CACHE_DIR=off
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
+ENV PIP_DEFAULT_TIMEOUT=100
+ENV POETRY_HOME="/opt/poetry"
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true
+ENV POETRY_NO_INTERACTION=1
+ENV PYSETUP_PATH="/opt/pysetup"
+ENV VENV_PATH="/opt/pysetup/.venv"
+
+ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+
+# builder-base is used to build dependencies
+FROM python-base as builder-base
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        curl \
+        build-essential
+
+# Install Poetry - respects $POETRY_VERSION & $POETRY_HOME
+ENV POETRY_VERSION=1.5.1
+RUN curl -sSL https://install.python-poetry.org | python
+
+# We copy our Python requirements here to cache them
+# and install only runtime deps using poetry
+WORKDIR $PYSETUP_PATH
+COPY ./poetry.lock ./pyproject.toml ./
+RUN poetry install --without dev
+
+# 'production' stage uses the clean 'python-base' stage and copyies
+# in only our runtime deps that were installed in the 'builder-base'
+FROM python-base as prod
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        netcat-traditional \
+        gcc
+
+COPY --from=builder-base $VENV_PATH $VENV_PATH
+
+# Create directory for the app user
+RUN mkdir -p /home/app
+
+# Create the app user
+RUN addgroup --system app && adduser --system --group app
+
+# Create the appropriate directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+RUN mkdir $APP_HOME/media
+WORKDIR $APP_HOME
+
+# Copy entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.prod.sh
+RUN chmod +x  $APP_HOME/entrypoint.prod.sh
+
+# Copy project
+COPY . $APP_HOME
+
+# Chown all the files to the app user
+RUN chown -R app:app $APP_HOME
+
+# Change to the app user
+USER app
+
+# Run entrypoint.prod.sh
+ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]

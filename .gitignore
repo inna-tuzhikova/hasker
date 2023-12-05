@@ -1,2 +1,6 @@
 .idea
 .pytest_cache
+.env.prod
+.env.prod.db
+staticfiles
+media

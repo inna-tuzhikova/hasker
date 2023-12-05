@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <div class="btn-group" role="group">
+    <a
+      href="{% url 'questions:index' %}"
+      class="btn btn-outline-primary{% if sort_type == 'recent' %} active pe-none{% endif %}">
+        New questions
+    </a>
+    <a
+      href="{% url 'questions:index_trending' %}"
+      class="btn btn-outline-primary{% if sort_type == 'trending' %} active pe-none{% endif %}">
+        Hot questions
+    </a>
+  </div>
+  {% if questions %}
+    <ul class="list-group list-group-flush pt-3">
+      {% for q in questions %}
+        {% include 'questions/question_card.html' with question=q %}
+      {% endfor %}
+    </ul>
+  {% include 'questions/pagination.html' %}
+  {% else %}
+    <div class="h3 mt-3">
+      No questions :(
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

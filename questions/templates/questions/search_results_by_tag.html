@@ -1,0 +1,8 @@
+{% extends 'questions/search_results.html' %}
+{% block title %}
+  {% if questions %}
+    {{ page_obj.paginator.count }} question(s) with tag {{ view.kwargs.tag_text }}
+  {% else %}
+    No questions with tag {{ view.kwargs.tag_text }}
+  {% endif %}
+{% endblock %}
