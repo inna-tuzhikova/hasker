@@ -156,3 +156,8 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:1337'
 ]
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 20,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
+}
