@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -26,6 +26,7 @@ answers_page = openapi.Parameter(
 class QuestionViewSet(TagPrefixMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Question.objects.recent()
     serializer_class = QuestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def maybe_paginated_response(self, queryset):
         page = self.paginate_queryset(queryset)

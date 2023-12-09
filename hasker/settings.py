@@ -160,7 +160,13 @@ CSRF_TRUSTED_ORIGINS = [
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
+    'DEFAULT_PAGINATION_CLASS': (
+        'rest_framework.pagination.PageNumberPagination'
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
 }
 
 SWAGGER_SETTINGS = {
