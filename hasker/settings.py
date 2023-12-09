@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'rest_framework',
-    'api'
+    'api',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -160,4 +161,9 @@ CSRF_TRUSTED_ORIGINS = [
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
+}
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': 'login',
+    'LOGOUT_URL': 'logout',
 }

@@ -26,13 +26,17 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(trending, many=True)
         return Response(serializer.data)
 
-    @action(detail=True)
+    @action(detail=True, serializer_class=AnswerSerializer)
     def answers(self, request, *args, **kwargs):
         q = self.get_object()
         answers = q.answers.all()
         page = self.paginate_queryset(answers)
         if page is not None:
-            serializer = AnswerSerializer(page, many=True)
+            serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = AnswerSerializer(answers, many=True)
+        serializer = self.get_serializer(answers, many=True)
         return Response(serializer.data)
+
+    @action(detail=False)
+    def search(self, request, *args, qq=None, **kwargs):
+        print(qq)
