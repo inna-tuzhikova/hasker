@@ -54,9 +54,8 @@ RUN chmod +x /app/entrypoint.ci.sh
 ENTRYPOINT ["/app/entrypoint.ci.sh"]
 
 # 'lint_test' stage runs flake8, isort and app tests
-# coverage.  Build will fail if test coverage is under 95%
 FROM dev AS lint_test
-RUN flake8 --count --show-source --statistics hasker members questions
-RUN isort --check-only hasker members questions
+RUN flake8 --count --show-source --statistics hasker members questions api
+RUN isort --check-only hasker members questions api
 
 CMD ["sh", "-c", "python manage.py test"]
