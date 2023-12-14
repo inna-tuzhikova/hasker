@@ -13,3 +13,8 @@ Web app for asking questions and getting answers
 
 ## Run tests
 `docker-compose -f docker-compose.ci.yml up`
+
+## Hasker API
+API can be found at:
+ - `/api` - browsable API
+ - `/api/swagger` - swagger
